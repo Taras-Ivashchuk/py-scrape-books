@@ -25,16 +25,16 @@ class BooksSpider(scrapy.Spider):
 
         rating = response.css(
             ".star-rating::attr(class)"
-        ).get().split()[-1]
+        ).get(default="").split()[-1]
 
         rating = w2n.word_to_num(rating)
-        upc = response.xpath("//th[text()='UPC']/following-sibling::td/text()").get()
+        upc = response.xpath("//th[text()='UPC']/following-sibling::td/text()").get(default="")
         amount_in_stock = response.css("p.instock.availability::text")
         amount_in_stock = int(amount_in_stock.re(r"\d+")[0]) if amount_in_stock else 0
 
         yield BookItem(
             title=extract_with_css("div.product_main h1::text"),
-            price=float(response.css("div.product_main .price_color::text").get().replace("£", "")),
+            price=float(extract_with_css("div.product_main .price_color::text").replace("£", "")),
             amount_in_stock=amount_in_stock,
             rating=int(rating),
             category=response.css("ul.breadcrumb li:nth-child(3) a::text").get(),
